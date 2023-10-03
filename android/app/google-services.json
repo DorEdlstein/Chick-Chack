@@ -1,0 +1,69 @@
+{
+  "project_info": {
+    "project_number": "498541278767",
+    "firebase_url": "https://chick-chack-6fdf7-default-rtdb.firebaseio.com",
+    "project_id": "chick-chack-6fdf7",
+    "storage_bucket": "chick-chack-6fdf7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:498541278767:android:0baf64a0da8a2cbe05b8da",
+        "android_client_info": {
+          "package_name": "com.example.chick_chack_beta"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "498541278767-05h8iqfi48heirsif03h0o1bscq1p1d3.apps.googleUserCCcontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDd2BajQotsyEjkX7DPko2RN6uXOp8V49g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "498541278767-05h8iqfi48heirsif03h0o1bscq1p1d3.apps.googleUserCCcontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:498541278767:android:a4caf7910cf30c7305b8da",
+        "android_client_info": {
+          "package_name": "com.example.favorite_places"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "498541278767-05h8iqfi48heirsif03h0o1bscq1p1d3.apps.googleUserCCcontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDd2BajQotsyEjkX7DPko2RN6uXOp8V49g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "498541278767-05h8iqfi48heirsif03h0o1bscq1p1d3.apps.googleUserCCcontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
