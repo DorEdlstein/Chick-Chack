@@ -1,27 +1,13 @@
+import 'package:chick_chack_beta/models/category.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
+
 const uuid = Uuid();
 
-enum Category {
-  general,
-  study,
-  leisure,
-  buisness,
-  work,
-}
-
-final formatDate = DateFormat.yMd();
-final formatHour = DateFormat.Hm();
-
-const categoryIcons = {
-  Category.general: Icons.article_outlined,
-  Category.study: Icons.school_outlined,
-  Category.leisure: Icons.fmd_good_outlined,
-  Category.buisness: Icons.attach_money,
-  Category.work: Icons.work_history_outlined,
-};
+final formatDate = DateFormat.yMd(); // year.month.day
+final formatHour = DateFormat.Hm(); // hour: minute : second
 
 class Mission {
   Mission({
@@ -32,12 +18,21 @@ class Mission {
     required this.comment,
   }) : id = uuid.v4();
 
-  final String id;
+   String id;
   final String title;
   final DateTime date;
-  final TimeOfDay time;
-  final Category category;
-  final String comment;
+  final TimeOfDay time; 
+  // final Loop? loops; //check
+  //final NOTIFICATION sound; //check
+  final CategoryList category;
+  final String comment; //הערות
+
+  // void setCategory(String categoryStr) {
+  //  if (categoryStr == Category.buisness.name) {
+  //     category =  Category.buisness;
+      
+  //   }
+  // }
 
   String get formattedDate {
     return formatDate.format(date);

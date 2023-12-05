@@ -7,12 +7,12 @@ import 'package:flutter/cupertino.dart'; // design of IOS APPLE
 
 import 'package:chick_chack_beta/models/expense.dart';
 
-final _userConnected = FirebaseAuth.instance.currentUser;
+final _userConnected = FirebaseAuth.instance.currentUser!;
 
 class NewExpense extends StatefulWidget {
   // "חלונית "הוספת הוצאה
-  const NewExpense({super.key, required this.onAddExpense});
-
+  const NewExpense(
+      {super.key, required this.onAddExpense}); //required this.onAddExpense});
   final void Function(Expense expense) onAddExpense; //מתקבלת מnew_expense
 
   @override
@@ -33,14 +33,13 @@ class _NewExpenseState extends State<NewExpense> {
   void dispose() {
     _titleController.dispose();
     _amountController.dispose();
-
     super.dispose();
   }
 
   void _presentDatePicker() async {
     final now = DateTime.now();
-    final firstDate = DateTime(now.year - 1, now.month, now.day);
-    final lastDate = DateTime(now.year +5, now.month, now.day);
+    final firstDate = DateTime(now.year - 5, now.month, now.day);
+    final lastDate = DateTime(now.year + 5, now.month, now.day);
     final pickedDate = await showDatePicker(
         //showDatePicker(
         context: context,
@@ -51,8 +50,7 @@ class _NewExpenseState extends State<NewExpense> {
       _selectedDate = pickedDate;
     });
   }
-  
-  
+
   void _showDialog() {
     //מציג הודעת שגיאה מותאמת לפי םלטםורמה (איפון.גלאקסי)
     if (Platform.isIOS) {
@@ -102,38 +100,53 @@ class _NewExpenseState extends State<NewExpense> {
       _showDialog();
       return;
     } //IF ends now ELSE
-
-    // widget.onAddExpense(Expense(
-    //     title: _titleController.text,
-    //     amount: enteredAmount,
-    //     date: _selectedDate!,
-    //     category:
-    //         _selectedCategory)); // פונקציה המוסיפה "הוצאה" לרשימת ההוצאות הנמצאת בexspenses
     else {
+      widget.onAddExpense(
+        Expense(
+            title: _titleController.text,
+            amount: enteredAmount,
+            date: _selectedDate!,
+            category: _selectedCategory),
+      ); // פונקציה המוסיפה "הוצאה" לרשימת ההוצאות הנמצאת בexspense
+      // final userData = await FirebaseFirestore.instance
+      //     .collection('users')
+      //     .doc(_userConnected.uid)
+      //     .get(); // to get User Details
+      //create collection   // doc with userID unique user // create db with userID name
       await FirebaseFirestore.instance
           .collection('expenses')
-          // .doc(userConnected.uid)
+          .doc(_userConnected.uid)
+          .collection(_userConnected.uid)
           .add({
+        // add EXPENSE
         'title': _titleController.text,
         'amount': _amountController.text,
-        'date': _selectedDate.toString().substring(0,10),
+        'date': _selectedDate.toString().substring(0, 10),
         'category': _selectedCategory.toString().substring(9),
-        'userId' : _userConnected!.uid,
       });
-     
-      // ignore: use_build_context_synchronously
-      Navigator.pop(context); //סוגר את החלונית לאחר ביצוע כל הפעולות
+      // print('---try to add exspense to list...----');
+      // widget.onAddExpense(Expense( // ----------ההוספה כבר מתבצעת בEXPENSES PAGE
+      //     title: _titleController.text,
+      //     amount: enteredAmount,
+      //     date: _selectedDate!,
+      //     category:
+      //         _selectedCategory)); // פונקציה המוסיפה "הוצאה" לרשימת ההוצאות הנמצאת בexspense
+      //Navigator.pop(context);
+      if (!mounted) {
+        return;
+      }
+      Navigator.of(context).pop(); //סוגר את החלונית לאחר ביצוע כל הפעולות
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final keyboardSpace = MediaQuery.of(context).viewInsets.bottom;
+
     return LayoutBuilder(
       builder: (ctx, constraints) {
         final width = constraints.maxWidth;
         final height = constraints.maxHeight;
-
         return SizedBox(
           height: double.infinity, //מותח את המסך עד הקצה
           child: SingleChildScrollView(

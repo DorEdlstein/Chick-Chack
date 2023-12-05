@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'dart:io'; // Platform class
 import 'package:chick_chack_beta/main.dart';
+import 'package:chick_chack_beta/models/category.dart';
 import 'package:chick_chack_beta/models/mission.dart';
+import 'package:chick_chack_beta/screens/application_main.dart';
 import 'package:chick_chack_beta/styles/styled_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -10,13 +12,30 @@ import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
  // design of IOS APPLE
 
-final _userConnected = FirebaseAuth.instance.currentUser;
-
+// ignore: must_be_immutable
 class NewMission extends StatefulWidget {
-  // "חלונית "הוספת הוצאה
-  const NewMission({super.key, required this.onAddMission});
-
+  // /חלונית הוספת משימות/
+  // widget varibale----------------
   final void Function(Mission mission) onAddMission; //מתקבלת מnew_mission
+  DateTime gotDate;
+  String gotTitle;
+
+  //----constactors------
+  NewMission({super.key, required this.onAddMission})
+      : gotDate = DateTime(9), // 9 = symbol NOW
+        gotTitle = '';
+
+  NewMission.byDate(
+      {super.key, required this.onAddMission, required DateTime defaultDate})
+      :
+        //DateTime defaultDate = DateTime.now();
+        gotDate = defaultDate,
+        gotTitle = '';
+
+  NewMission.byDefualtTitle(
+      {super.key, required this.onAddMission, required String title})
+      : gotDate = DateTime(9), // 9 = symbol NOW
+        gotTitle = title;
 
   @override
   State<NewMission> createState() => _NewMissionState();
@@ -31,13 +50,27 @@ class _NewMissionState extends State<NewMission> {
   final _commentController = TextEditingController();
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
-  Category _selectedCategory = Category.general;
+  CategoryList _selectedCategory = CategoryList.general;
 
   @override
   void dispose() {
     _titleController.dispose();
     _commentController.dispose();
+    widget.gotDate = DateTime(9);
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    if (widget.gotTitle != '') {
+      _titleController.text = widget.gotTitle;
+    }
+    if (widget.gotDate != DateTime(9)) {
+      setState(() {
+        _selectedDate = widget.gotDate;
+      });
+      super.initState();
+    }
   }
 
   void _presentDatePicker() async {
@@ -118,25 +151,9 @@ class _NewMissionState extends State<NewMission> {
       _showDialog();
       return;
     } //IF ends now ELSE
-    widget.onAddMission(Mission(
-      title: _titleController.text,
-      time: _selectedTime!,
-      date: _selectedDate!,
-      category: _selectedCategory,
-      comment: _commentController.text, //זמנית נגדיר את הערות כריק
-    )); // פונקציה המוסיפה "משימה" לרשימת המשימות הנמצאת missions
     //--firebase--
-
-    // else {
-    //   await FirebaseFirestore.instance.collection('missions').add(
-    //     'title' : _titleController.text,
-    //     'time' : _selectedTime ,
-    //     'date' :  _selectedDate ,
-    //     'category' : _selectedCategory.text ,
-    //     'comment' : _commentController.text  ,    );
-    
-    final url = Uri.https(
-        'chick-chack-6fdf7-default-rtdb.firebaseio.com', 'mission-list.json');
+    final url = Uri.https('chick-chack-6fdf7-default-rtdb.firebaseio.com',
+        'mission-list/${userConnected.uid}.json');
     final response = await http.post(url,
         headers: {
           'Content-Type': 'application/json',
@@ -152,32 +169,40 @@ class _NewMissionState extends State<NewMission> {
           'comment': _commentController.text,
         }));
     //response.statusCode == 404;
-    print(response.body);
-
+    //print(response.body);
+    widget.onAddMission(Mission(
+      title: _titleController.text,
+      time: _selectedTime!,
+      date: _selectedDate!,
+      category: _selectedCategory,
+      //student?_selectedCategory:CategoryList.study,
+      comment: _commentController.text,
+    )); // פונקציה המוסיפה "משימה" לרשימת המשימות הנמצאת missions
     if (!mounted) {
       return;
     }
-    Navigator.of(context).pop(Mission(
-      title: _titleController.text,
-      date: DateTime(
-        _selectedDate!.year,
-        _selectedDate!.month,
-        _selectedDate!.day,
-      ),
-      time: TimeOfDay(
-        hour: _selectedTime!.hour,
-        minute: _selectedTime!.minute,
-      ),
-      category: _selectedCategory,
-      comment: _commentController.text,
-    )); //סוגר את החלונית לאחר ביצוע כל הפעולות
+    Navigator.of(context).pop();
+    //   Mission(
+    //   title: _titleController.text,
+    //   date: DateTime(
+    //     _selectedDate!.year,
+    //     _selectedDate!.month,
+    //     _selectedDate!.day,
+    //   ),
+    //   time: TimeOfDay(
+    //     hour: _selectedTime!.hour,
+    //     minute: _selectedTime!.minute,
+    //   ),
+    //   category: _selectedCategory,
+    //   comment: _commentController.text,
+    // )); //סוגר את החלונית לאחר ביצוע כל הפעולות
   }
-  
-
 
   @override
   Widget build(BuildContext context) {
     final keyboardSpace = MediaQuery.of(context).viewInsets.bottom;
+    final bool isGotTitle;
+    widget.gotTitle == '' ? isGotTitle = false : isGotTitle = true;// this check if we use the GOTTITLE CONSTRACTOR!!!!!
     return GestureDetector(
       // להתעלם מהמקלדת אם פתוחה בעת לחיצה
       onTap: () {},
@@ -345,7 +370,7 @@ class _NewMissionState extends State<NewMission> {
                         children: [
                           DropdownButton(
                             value: _selectedCategory,
-                            items: Category.values
+                            items: CategoryList.values
                                 .map(
                                   (category) => DropdownMenuItem(
                                     value: category,
@@ -394,7 +419,7 @@ class _NewMissionState extends State<NewMission> {
                           Row(children: [
                             DropdownButton(
                               value: _selectedCategory,
-                              items: Category.values
+                              items: CategoryList.values
                                   .map(
                                     (category) => DropdownMenuItem(
                                       value: category,
@@ -518,6 +543,24 @@ class _NewMissionState extends State<NewMission> {
                                   onPressed: _submitMissionData,
                                   child: const Text('Save Mission'),
                                 ),
+                                // ElevatedButton(  //-------------------------------ALARM-----------
+                                //   key: const ValueKey('RegisterOneShotAlarm'),
+                                //   onPressed: () async {
+                                //     await AndroidAlarmManager.oneShot(
+                                //       const Duration(seconds: 5),
+                                //       // Ensure we have a unique alarm ID.
+                                //       Random().nextInt(pow(2, 31) as int),
+                                //       () {
+                                //         print('-----ok-----');
+                                //       },
+                                //       exact: true,
+                                //       wakeup: true,
+                                //     );
+                                //   },
+                                //   child: const Text(
+                                //     'Schedule OneShot Alarm',
+                                //   ),
+                                // ),
                               ],
                             ),
                           ),

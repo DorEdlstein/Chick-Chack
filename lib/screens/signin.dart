@@ -11,8 +11,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 final _firebase = FirebaseAuth.instance; // מחזיק פרטי משתמש
 
 class SignInScreen extends StatefulWidget {
-  const SignInScreen({super.key});
+  const SignInScreen({super.key, required this.isStudent});
 
+  final bool isStudent;
+  
   @override
   State<SignInScreen> createState() => _SignInScreenState();
 }
@@ -33,19 +35,22 @@ class _SignInScreenState extends State<SignInScreen> {
       _formKey.currentState!.save();
       print('---details saved---');
     }
-    FocusScope.of(context).unfocus();
+    FocusScope.of(context).unfocus(); //close keyboard
     try {
       final userCredentails = await _firebase.createUserWithEmailAndPassword(
           email: _enterdEmail, password: _enterdPassword);
+
       print(userCredentails);
 
-      await FirebaseFirestore.instance
+      await FirebaseFirestore
+          .instance // שמירת נתוני המשתמש בענן כדי ששנוכל להשתמש בנתוניו
           .collection('users')
           .doc(userCredentails.user!.uid)
           .set({
         'user_name': _enteredName,
         'email': _enterdEmail,
-        'password': _enterdPassword
+        'password': _enterdPassword,
+        'is_student': true,
       });
 
       Navigator.of(context).push(
@@ -199,40 +204,13 @@ class _SignInScreenState extends State<SignInScreen> {
                       child: const Text('Reset'),
                     ),
                     ElevatedButton(
-                      // ---------מפעיל sumit
+                      // ---------מפעיל submit
                       onPressed: _submit,
                       child: const StyledText.white(
                         'SIGN NOW!',
                         size: 24,
                       ),
                     ),
-                    // () { //----------------------לא למחוק----------------
-                    //   _formKey.currentState!.validate();
-                    //   if (_formKey.currentState!.validate() == false) {
-                    //     print('fail!!!');
-                    //   } else {
-                    //     //succesfullsignin
-                    //     _formKey.currentState!.save();
-                    //     Navigator.of(context).pop(UserCC(
-                    //       name: _enteredName,
-                    //       email: _enterdEmail,
-                    //       password: _enterdPassword,
-                    //     ));
-                    //     setState(() {
-                    //       ScaffoldMessenger.of(context).clearSnackBars();
-                    //       ScaffoldMessenger.of(context).showSnackBar(
-                    //         SnackBar(
-                    //           duration: const Duration(seconds: 3),
-                    //           content: StyledText(
-                    //             outText: 'welcome $_enteredName'.toUpperCase(),
-                    //             size: 21,
-                    //             color: kColorScheme.primaryContainer,
-                    //           ),
-                    //         ),
-                    //       );
-                    //     });
-                    //   }
-                    // },{}
                   ],
                 ),
                 Row(

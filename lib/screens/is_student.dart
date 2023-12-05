@@ -1,6 +1,4 @@
-
 import 'package:chick_chack_beta/main.dart';
-import 'package:chick_chack_beta/screens/is_student.dart';
 import 'package:chick_chack_beta/screens/login.dart';
 import 'package:chick_chack_beta/screens/signin.dart';
 import 'package:chick_chack_beta/screens/waiting_screen.dart';
@@ -8,13 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:chick_chack_beta/styles/styled_text.dart';
 import 'package:uuid/uuid_util.dart';
 
-class IsFirstTime extends StatelessWidget {
-  const IsFirstTime({super.key});
+class IsStudent extends StatelessWidget {
+  const IsStudent({super.key});
 
   @override
   Widget build(BuildContext context) {
     //final focus = FocusScope.of(context).unfocus();
-    bool isFirstTimeFlag = true;
     // Scaffold(
     //   appBar: AppBar(title: const Text('welcome!')),
     //   body: '
@@ -27,6 +24,7 @@ class IsFirstTime extends StatelessWidget {
 
           ///Splash Screen
           else {
+            bool _isStudent = false;
             return Scaffold(
               backgroundColor: Theme.of(context).backgroundColor,
               //decoration: const BoxDecoration(color: Colors.cyan),
@@ -48,7 +46,7 @@ class IsFirstTime extends StatelessWidget {
                     // ),
                     const SizedBox(height: 65),
                     const Text(
-                      'האם אתה משתמש בפעם הראשונה באפליקציה?',
+                      '?? האם אתה תלמיד/סטודנט',
                       style: TextStyle(fontSize: 30),
                       textAlign: TextAlign.center,
                     ),
@@ -58,9 +56,11 @@ class IsFirstTime extends StatelessWidget {
                           horizontal: 15, vertical: 6),
                       child: ElevatedButton(
                         onPressed: () {
+                          _isStudent = true;
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (ctx) => const IsStudent(),
+                              builder: (ctx) =>
+                                  SignInScreen(isStudent: _isStudent),
                             ),
                           );
                         },
@@ -80,19 +80,18 @@ class IsFirstTime extends StatelessWidget {
                           horizontal: 15, vertical: 6),
                       child: ElevatedButton(
                         onPressed: () {
-                          isFirstTimeFlag = false;
+                          _isStudent = false;
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (ctx) => const LogInScreen(),
+                              builder: (ctx) =>
+                                  SignInScreen(isStudent: _isStudent),
                             ),
                           );
                         },
                         style: ElevatedButton.styleFrom(
                           minimumSize: const Size(300, 25),
                         ),
-                        child: const StyledText.white(
-                            'לא, יש לי חשבון באפליקציה',
-                            size: 25),
+                        child: const StyledText.white('לא', size: 25),
                       ),
                     ),
                   ],

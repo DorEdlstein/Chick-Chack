@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 class ExpensesList extends StatelessWidget {
   const ExpensesList({
     super.key,
-    required this.expenses,
+    required this.expenses, required void Function(Expense expense) onRemoveExpense,
     // required this.onRemoveExpense,
   });
 

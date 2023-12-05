@@ -1,6 +1,7 @@
 import 'package:chick_chack_beta/main.dart';
 import 'package:chick_chack_beta/models/user.dart';
 import 'package:chick_chack_beta/screens/application_main.dart';
+import 'package:chick_chack_beta/screens/is_student.dart';
 import 'package:chick_chack_beta/screens/signin.dart';
 import 'package:chick_chack_beta/styles/styled_text.dart';
 import 'package:flutter/material.dart';
@@ -28,17 +29,14 @@ class _LogInScreenState extends State<LogInScreen> {
     if (!isValid) {
       return; // תרשום מתחת לקלט מדוע הקלט לא עבר ולידציה (ולא התחברות!!!)
     }
-    if(isValid){
+    if (isValid) {
       _formKey.currentState!.save();
     }
     try {
       // try to sign in
-      print('EMAIL: $_enterdEmail');
-      print('PASS: $_enterdPassword');
       final userCredentails = await _firebase.signInWithEmailAndPassword(
           email: _enterdEmail, password: _enterdPassword);
-      print(userCredentails);
-
+      //print(userCredentails);
       //-----------------------whensuccesfullsignin
       setState(() {
         ScaffoldMessenger.of(context).clearSnackBars();
@@ -46,13 +44,14 @@ class _LogInScreenState extends State<LogInScreen> {
           SnackBar(
             duration: const Duration(seconds: 3),
             content: StyledText(
-              outText: 'Log-in succesfull $_enterdEmail'.toUpperCase(),
-              size: 18,
+              outText: 'Login succesfull $_enterdEmail',
+              size: 22,
               color: kColorScheme.primaryContainer,
             ),
           ),
         );
       });
+      FocusScope.of(context).unfocus();//close keyboard
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (ctx) => const MainApp(
@@ -65,7 +64,6 @@ class _LogInScreenState extends State<LogInScreen> {
         ),
       );
     } on FirebaseAuthException catch (error) {
-      print('erroorr');
       if (error.code == 'wrong-password') {
         ScaffoldMessenger.of(context).clearSnackBars();
         ScaffoldMessenger.of(context).showSnackBar(
@@ -197,7 +195,7 @@ class _LogInScreenState extends State<LogInScreen> {
                     TextButton(
                       onPressed: () {
                         Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => const SignInScreen()));
+                            builder: (context) => const IsStudent()));
                       },
                       child: const Text(
                         'Register here!',

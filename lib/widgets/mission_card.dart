@@ -1,4 +1,5 @@
 import 'package:chick_chack_beta/main.dart';
+import 'package:chick_chack_beta/models/category.dart';
 import 'package:chick_chack_beta/models/mission.dart';
 import 'package:chick_chack_beta/styles/styled_text.dart';
 import 'package:flutter/material.dart';
@@ -11,10 +12,14 @@ class MissionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-        child: Row(
+        child: 
+        Row(
           //mainRow
           crossAxisAlignment:
               CrossAxisAlignment.center, //טקסט בעמודה העליונה מתחיל מצד שמאל
@@ -33,10 +38,10 @@ class MissionCard extends StatelessWidget {
                         width: 200,
                         child: Text(
                           mission.title,
-                          style: GoogleFonts.ephesis(
+                          style: GoogleFonts.averiaSansLibre(
                             color: kColorScheme.onBackground,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
+                            fontSize: 30,
+                            fontWeight: FontWeight.w800,
                           ), //TextStyle(fontSize: 12,fontStyle: GoogleFonts.adamina(), color: kColorScheme.onBackground,fontWeight: FontWeight.bold,) ,//Theme.of(context).textTheme.bodyMedium,
                           maxLines: 4,
                           overflow: TextOverflow.ellipsis,
@@ -45,29 +50,28 @@ class MissionCard extends StatelessWidget {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 10),// between title and category
                   Row(
                     //category
                     children: [
                       Icon(categoryIcons[mission.category]),
                       const SizedBox(width: 10),
                       StyledText(
-                        outText: mission.category.toString().substring(9),
-                        size: 30,
+                        outText: mission.category.toString().substring(13).toUpperCase(),
+                        size: 25,
                         color: kColorScheme.secondary,
                       ),
                     ],
                   ),
+                  const SizedBox(height: 20),
                   Row(
-                    children:  [
+                    children: [
                       Text(mission.comment.toString()),
                     ],
                   )
                 ],
               ),
             ),
-            // Row(
-            //   children: const [SizedBox(width: 80)],
-            // ),
             //RowLeftEnds
             Column(
               //right
@@ -78,7 +82,7 @@ class MissionCard extends StatelessWidget {
                   children: [
                     StyledText(
                         outText: mission.formattedHour,
-                        size: 60,
+                        size: 55,
                         color: Colors.black87),
                   ],
                 ),

@@ -1,16 +1,31 @@
+import 'dart:convert';
+
 import 'package:chick_chack_beta/main.dart';
-import 'package:chick_chack_beta/models/user.dart';
+import 'package:chick_chack_beta/models/category.dart';
+import 'package:chick_chack_beta/models/mission.dart';
+import 'package:chick_chack_beta/screens/calender/calender_page.dart';
+import 'package:chick_chack_beta/screens/chick_chack_add.dart';
+import 'package:chick_chack_beta/screens/first_time.dart';
+import 'package:chick_chack_beta/screens/is_student.dart';
+//import 'package:chick_chack_beta/models/user.dart';
 import 'package:chick_chack_beta/screens/missions/missions.dart';
-import 'package:chick_chack_beta/screens/settings.dart';
+import 'package:chick_chack_beta/screens/missions/new_mission.dart';
+import 'package:chick_chack_beta/screens/settings/settings.dart';
+import 'package:chick_chack_beta/screens/student/student_page.dart';
 import 'package:chick_chack_beta/screens/waiting_screen.dart';
 import 'package:chick_chack_beta/styles/styled_text.dart';
 import 'package:chick_chack_beta/screens/expenses/expenses.dart';
+import 'package:chick_chack_beta/widgets/small_mission_card.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:flutter/material.dart';
 
-final userConnected = FirebaseAuth.instance.currentUser!;
+final userConnected =
+    FirebaseAuth.instance.currentUser!; //to get the unique token
+//final _token = _user.uid;
+// final userConnectedDetails =
+//     FirebaseFirestore.instance.collection('users').doc(userConnected.uid).get();
 
 class MainApp extends StatefulWidget {
   const MainApp({super.key});
@@ -21,112 +36,367 @@ class MainApp extends StatefulWidget {
 
 @override
 class _MainAppState extends State<MainApp> {
-  void _showConnactionDetails() async {
-    final userData = await FirebaseFirestore.instance
+  bool isStudent = false;
+  late String userName; // late = will get a value in future!
+  late String email;
+  List<Mission> allMissions = [];
+  List<Mission> todayMissionsSorted = [];
+
+  get http => null;
+
+  @override
+  void initState() {
+    setState(() {
+      //refresh
+    });
+    _loadMission();
+    showUserName();
+    getemail();
+    _loadIsStudent();
+    super.initState();
+  }
+
+  void _loadMission() async {
+    final url = Uri.https('chick-chack-6fdf7-default-rtdb.firebaseio.com',
+        'mission-list/${userConnected.uid}.json');
+    try {
+      final response = await http.get(url);
+      if (response.statusCode >= 400) {
+        print('Failed to fetch data. Please try again later.');
+      }
+      if (response.body == 'null') {
+        print('response bode (allmissions) is emptey!!!');
+        return;
+      }
+      //------check for problems--------
+      final Map<String, dynamic> listData = json.decode(response.body);
+      final List<Mission> loadedItems = [];
+      for (final item in listData.entries) {
+        loadedItems.add(
+          Mission(
+            title: item.value['title'],
+            category: CategoryList.values.byName(item.value['category']),
+            comment: item.value['comment'],
+            date: DateTime(item.value['date-year'], item.value['date-month'],
+                item.value['date-day']),
+            time: TimeOfDay(
+              hour: item.value['time-hour'],
+              minute: item.value['time-minute'],
+            ),
+          ),
+        );
+      }
+      setState(() {
+        allMissions = loadedItems;
+        print('items was added succesfuly to  mission list from firbase!');
+      });
+    } catch (error) {
+      // setState(() {
+      print('Something went wrong! Please try again later.');
+      //  });
+    }
+  }
+
+  List<Mission> missionsSortedToday(List<Mission> missions) {
+    List<Mission> sortedList = [];
+    final String today = DateTime.now().toString().substring(0, 10);
+    for (final mission in missions) {
+      if (mission.date.toString().substring(0, 10) == today) {
+        sortedList.add(mission);
+      }
+    }
+    print(missions.length);
+    setState(() {
+      todayMissionsSorted = sortedList;
+    });
+    return todayMissionsSorted;
+  }
+
+  void _loadIsStudent() async {
+    final bool flag = await FirebaseFirestore.instance
         .collection('users')
         .doc(userConnected.uid)
-        .get();
+        .get()
+        .then((value) {
+      return value.data()!['is_student'];
+    });
+    if (flag) {
+      setState(() {
+        isStudent = true;
+      });
+    }
+    return;
+  }
 
-    setState(() {
-      ScaffoldMessenger.of(context).clearSnackBars();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          duration: const Duration(seconds: 3),
-          content: StyledText(
-            outText: 'welcome ${userData.data()!['user_name']}'.toUpperCase(),
-            size: 21,
-            color: kColorScheme.primaryContainer,
-          ),
-        ),
-      );
+  void showUserName() async {
+    userName = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userConnected.uid)
+        .get()
+        .then((value) {
+      return value
+          .data()!['user_name']
+          .toUpperCase(); // data() make all data to map (server) -> user_name = key
+    });
+  }
+
+  void getemail() async {
+    email = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userConnected.uid)
+        .get()
+        .then((value) {
+      return value.data()!['email'];
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    //_showConnactionDetails(user);
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    missionsSortedToday(allMissions);
+
     return FutureBuilder(
-        future: Future.delayed(const Duration(seconds: 3)),
+        future: Future.delayed(const Duration(seconds: 2)),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const WaitingScreen();
+            //Splash Screen
           } else {
-            // _showConnactionDetails();
             return Scaffold(
-              // appBar: AppBar(
-              //   actions: [
-              //     IconButton(
-              //         onPressed: () {
-              //           FirebaseAuth.instance.signOut();
-              //         },
-              //         icon: const Icon(Icons.exit_to_app),
-              //         color: Theme.of(context).colorScheme.primary),
-              //   ],
-              // ),
-              body:
-                  // Container(
-                  //   decoration: const BoxDecoration(image: DecorationImage(image: NetworkImage('https://www.sampletemplates.com/business-templates/checklist/daily-checklist-sample.html'))),
-                  //   child:
-                  Padding(
-                padding: const EdgeInsets.only(bottom: 290),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        IconButton(
+              body: SingleChildScrollView(
+                child: Container(
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                        image: const AssetImage('assets/openScreen.png'),
+                        colorFilter: ColorFilter.mode(
+                            kColorScheme.secondaryContainer,
+                            BlendMode.colorDodge),
+                        opacity: 240,
+                        fit: BoxFit.fill),
+                  ),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 30),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          StyledText(
+                              outText: 'ברוך שובך \n ${userName.toUpperCase()}',
+                              size: 18,
+                              color: kColorScheme.secondary),
+                          SizedBox(width: screenWidth / 9),
+                          TextButton.icon(
                             onPressed: () {
                               FirebaseAuth.instance.signOut();
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => const IsFirstTime()));
                             },
                             icon: const Icon(Icons.exit_to_app),
-                            color: Theme.of(context).colorScheme.primary),
-                      ],
-                    ),
-                    StyledText(
-                        outText: 'welcome XXXplaceholder'.toUpperCase(),
-                        size: 15,
-                        color: kColorScheme.onBackground),
-                    StyledText(
-                      outText: 'everything \n Chick-Chack'.toUpperCase(),
-                      size: 50,
-                      color: kColorScheme.onBackground,
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (ctx) => const Expenses(),
+                            label: const Text('Log Out',
+                                style: TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold)),
+                            // style: TextButton.styleFrom(iconColor: Colors.red),
+                            // Theme.of(context).colorScheme.primary),
                           ),
-                        );
-                      },
-                      icon: const Icon(Icons.attach_money_rounded),
-                      iconSize: 100,
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (ctx) => const Missions(),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      if (screenWidth < screenHeight) //not landscape
+                        StyledText(
+                          outText: 'everything \n Chick-Chack'.toUpperCase(),
+                          size: 45,
+                          color: kColorScheme.onBackground,
+                        ),
+                      Center(
+                          child: Text(
+                        'משימות היום',
+                        style: TextStyle(
+                            color: kColorScheme.primary,
+                            fontSize: 35,
+                            fontWeight: FontWeight.bold),
+                      )),
+                      Container(
+                        color: kColorScheme.primary.withOpacity(0.4),
+                        height: screenHeight * 0.25,
+                        width: screenWidth * 0.9,
+                        child: todayMissionsSorted
+                                .isNotEmpty // רשימת המשימות היומית אינה ריקה
+                            ? ListView.builder(
+                                itemCount: todayMissionsSorted.length,
+                                itemBuilder: (context, index) {
+                                  return SmallMission(
+                                      todayMissionsSorted[index++]);
+                                },
+                              )
+                            : const Center(child: Text('...אין משימות בקרוב')),
+                      ),
+                      const SizedBox(height: 25),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          TextButton.icon(
+                            onPressed: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (ctx) => const Expenses(),
+                                ),
+                              );
+                            },
+                            label: const Text(
+                              'מעקב \n הוצאות',
+                              style: TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.bold),
+                            ),
+                            icon: Icon(Icons.attach_money_rounded,
+                                size: 55, color: Colors.grey.shade700),
                           ),
-                        );
-                      },
-                      icon: const Icon(Icons.check_box_outlined),
-                      iconSize: 100,
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (ctx) => SettingsS(),
+                          TextButton.icon(
+                            onPressed: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (ctx) =>
+                                      Missions(date: DateTime.now()),
+                                ),
+                              );
+                            },
+                            label: const Text(
+                              'מעקב \n משימות',
+                              style: TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.bold),
+                            ),
+                            icon: Icon(Icons.check_box_outlined,
+                                size: 50, color: Colors.grey.shade700),
                           ),
-                        );
-                      },
-                      alignment: Alignment.center,
-                      icon: const Icon(Icons.settings),
-                      iconSize: 30,
-                    ),
-                  ],
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      isStudent
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                Container(
+                                  color: Colors.black.withOpacity(0.1),
+                                  child: TextButton.icon(
+                                    onPressed: () {
+                                      // print('student featture');
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (ctx) => const StudentPage(),
+                                        ),
+                                      );
+                                    },
+                                    label: const Text(
+                                      'לו"ז \n סטודנט',
+                                      style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    icon: const Icon(Icons.school_outlined,
+                                        size: 72),
+                                  ),
+                                ),
+                                Container(
+                                  color: Colors.black.withOpacity(0.1),
+                                  child: TextButton.icon(
+                                    onPressed: () {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (ctx) => CCAddMission(
+                                              studentFeatures: isStudent),
+                                        ),
+                                      );
+                                      // print('---quick add mission---');
+                                    },
+                                    icon: const Icon(
+                                      Icons.add,
+                                      size: 75,
+                                    ),
+                                    label: const Text('הוספה\nבציק צק',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 20)),
+                                  ),
+                                ),
+                              ],
+                            )
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  color: Colors.black.withOpacity(0.1),
+                                  child: TextButton.icon(
+                                    onPressed: () {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (ctx) => CCAddMission(
+                                              studentFeatures: isStudent),
+                                        ),
+                                      );
+                                      // print('---quick add mission---');
+                                    },
+                                    icon: const Icon(
+                                      Icons.add,
+                                      size: 75,
+                                    ),
+                                    label: const Text('הוספה\nבציק צק',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 20)),
+                                  ),
+                                ),
+                              ],
+                            ),
+                      const SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          TextButton.icon(
+                            onPressed: () {
+                              //print('---calender---');
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (ctx) => const PageCalendar(),
+                                ),
+                              );
+                            },
+                            label: const Text(
+                              'לוח \n שנה',
+                              style: TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.bold),
+                            ),
+                            icon: Icon(Icons.calendar_month_outlined,
+                                size: 50, color: Colors.grey.shade700),
+                          ),
+                          TextButton.icon(
+                            onPressed: () async {
+                              //print('---settings---');
+                              bool flag = await Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (ctx) =>
+                                      SettingCC(isStudentSettings: isStudent),
+                                ),
+                              );
+                              if (isStudent != flag) {
+                                setState(() {
+                                  isStudent = flag;
+                                });
+                              }
+                            },
+                            label: const Text(
+                              'הגדרות',
+                              style: TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.bold),
+                            ),
+                            icon: Icon(Icons.settings,
+                                size: 50, color: Colors.grey.shade700),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             );
@@ -134,128 +404,3 @@ class _MainAppState extends State<MainApp> {
         });
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import 'package:chick_chack_beta/main.dart';
-// import 'package:chick_chack_beta/models/user.dart';
-// import 'package:chick_chack_beta/screens/missions/missions.dart';
-// import 'package:chick_chack_beta/screens/settings.dart';
-// import 'package:chick_chack_beta/styles/styled_text.dart';
-// import 'package:chick_chack_beta/screens/expenses/expenses.dart';
-// import 'package:firebase_auth/firebase_auth.dart';
-
-// import 'package:flutter/material.dart';
-
-// class MainApp extends StatefulWidget {
-//   const MainApp({super.key});
-
-//   @override
-//   State<MainApp> createState() => _MainAppState();
-// }
-
-// @override
-// class _MainAppState extends State<MainApp> {
-//   void _showConnactionDetails(UserCC user) {
-//     setState(() {
-//       ScaffoldMessenger.of(context).clearSnackBars();
-//       ScaffoldMessenger.of(context).showSnackBar(
-//         SnackBar(
-//           duration: const Duration(seconds: 3),
-//           content: StyledText(
-//             outText: 'welcome ${user.name}'.toUpperCase(),
-//             size: 21,
-//             color: kColorScheme.primaryContainer,
-//           ),
-//         ),
-//       );
-//     });
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return //_showConnactionDetails(user);
-//         Scaffold(
-//       body: Center(
-//         child: Column(
-//           children: [
-//             IconButton(
-//               onPressed: () {
-//                 FirebaseAuth.instance.signOut();
-//               },
-//               icon: Icon(
-//                 Icons.exit_to_app,
-//                 color: Theme.of(context).colorScheme.primary,
-//                 size: 100,
-//               ),
-//             ),
-//             StyledText(
-//                 outText: 'welcome XXXplaceholder'.toUpperCase(),
-//                 size: 15,
-//                 color: kColorScheme.onBackground),
-//             StyledText(
-//               outText: 'everything \n Chick-Chack'.toUpperCase(),
-//               size: 50,
-//               color: kColorScheme.onBackground,
-//             ),
-//             IconButton(
-//               onPressed: () {
-//                 Navigator.of(context).push(
-//                   MaterialPageRoute(
-//                     builder: (ctx) => const Expenses(),
-//                   ),
-//                 );
-//               },
-//               icon: const Icon(Icons.attach_money_rounded),
-//               iconSize: 100,
-//             ),
-//             IconButton(
-//               onPressed: () {
-//                 Navigator.of(context).push(
-//                   MaterialPageRoute(
-//                     builder: (ctx) => const Missions(),
-//                   ),
-//                 );
-//               },
-//               icon: const Icon(Icons.check_box_outlined),
-//               iconSize: 100,
-//             ),
-//             IconButton(
-//                 onPressed: () {
-//                   Navigator.of(context).push(
-//                     MaterialPageRoute(
-//                       builder: (ctx) =>  Settings(),
-//                     ),
-//                   );
-//                 },
-//                 icon: const Icon(Icons.settings),
-//                 iconSize:100
-//                ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }

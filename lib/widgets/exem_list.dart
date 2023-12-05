@@ -1,22 +1,23 @@
-import 'package:chick_chack_beta/models/mission.dart';
-import 'package:chick_chack_beta/widgets/mission_card.dart';
+import 'package:chick_chack_beta/models/exem.dart';
+import 'package:chick_chack_beta/widgets/exem_item.dart';
 import 'package:flutter/material.dart';
 
-class MissionsList extends StatelessWidget {
-  const MissionsList({
+class ExemsList extends StatelessWidget {
+  const ExemsList({
     super.key,
-    required this.missions,
-    required this.onRemoveMission,
+    required this.exems,
+    required this.onRemoveExem,
   });
 
-  final List<Mission> missions;
-  final void Function(Mission mission) onRemoveMission;
+  final List<Exem> exems;
+  final void Function(Exem expnse) onRemoveExem;
 
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      itemCount: missions.length,
-      itemBuilder: (ctx, index) => Dismissible(
+      itemCount: exems.length,
+      itemBuilder: (ctx, index) =>
+       Dismissible(
         //נותן את האופציה להחליק משימה ולמחוק אותה
         background: Container(
           color: Theme.of(context).colorScheme.error.withOpacity(0.75),
@@ -26,11 +27,11 @@ class MissionsList extends StatelessWidget {
           ),
         ),
         key: ValueKey(
-            missions[index]), //מזהה יחודי לויגט ("משימה") הספציפים שרוצים למחוק
+            exems[index]), //מזהה יחודי לויגט ("הוצאה") הספציפים שרוצים למחוק
         onDismissed: (direction) {
-          onRemoveMission(missions[index]);
+        onRemoveExem(exems[index]);
         },
-        child: MissionCard(missions[index]),
+        child: ExemItem(exems[index]),
       ),
     );
   }

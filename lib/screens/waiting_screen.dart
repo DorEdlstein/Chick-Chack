@@ -10,6 +10,8 @@ class WaitingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width; // get size screen to user
+    final screenHeight = MediaQuery.of(context).size.height;// get size screen to user
     return
         // SplashScreen(
         //   seconds: 2,
@@ -21,20 +23,29 @@ class WaitingScreen extends StatelessWidget {
         //   ),
         //   image: Image.asset('assets/openScreen.png'),
         //   loaderColor: kColorScheme.prim,
-        Container(
-      color: kColorScheme.primaryContainer,
-      child: Padding(
-        padding: const EdgeInsets.only(top: 50),
-        child: Column(
+      Scaffold(
+      //color: kColorScheme.secondaryContainer,
+      body: 
+      //SingleChildScrollView(
+        Padding(padding: const EdgeInsets.only(top: 10,bottom: 10),
+        child: 
+       // screenWidth < screenHeight// not landscape [ stand ]
+         Column(
           crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
+          mainAxisSize: MainAxisSize.max,
           children: [
-            const StyledText(
-                outText: 'Chick Chack', size: 65, color: Colors.black),
-            const SizedBox(height: 50),
+            SizedBox(height:  screenHeight*0.1),
+             Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children:const [
+                 StyledText(
+                    outText: 'Chick Chack', size: 65, color: Colors.black),
+              ],
+            ),
+            const SizedBox(height: 20),
             Container(
-              width: 320, //circle
-              height: 320,
+              width: screenHeight*0.35 , //circle
+              height: screenHeight*0.35,
               decoration: const BoxDecoration(
                 shape: BoxShape.circle,
                 color: (Colors.white),
@@ -43,15 +54,14 @@ class WaitingScreen extends StatelessWidget {
               child: Center(
                 child: Image.asset(
                   'assets/openScreen.png',
-                  width: 250, //picture
-                  height: 300,
-                  //fit: BoxFit.contain,
+                  width: screenHeight*0.25, //picture
+                  height: screenHeight*0.3,
+                  fit: BoxFit.contain,
                 ),
               ),
             ),
-            const Padding(padding: EdgeInsets.all(28)),
             //child: StayledText('welcome to Liav\'s app '),
-            //const SizedBox(height: 20),
+            const SizedBox(height: 20),
             Text('האפליקציה שתעשה לכם \n סדר יום\n בצ\'יק צ\'ק',
                 style: TextStyle(
                     color: kColorScheme.primary,
@@ -69,12 +79,63 @@ class WaitingScreen extends StatelessWidget {
             //         color: kColorScheme.primary),
             //   ],
             // ),
-            const SizedBox(height: 20),
+             SizedBox(height: screenHeight*0.05),
             CircularProgressIndicator(
               color: kColorScheme.primary,
             ) // גלגל המתנה בתחתית העמוד
           ],
-        ),
+        )
+        // // if landscape
+        // : Column(
+        //   crossAxisAlignment: CrossAxisAlignment.center,
+        //   mainAxisSize: MainAxisSize.min,
+        //   children: [
+        //     const StyledText(
+        //         outText: 'Chick Chack', size: 65, color: Colors.black),
+        //     const SizedBox(height: 50),
+        //     Container(
+        //       width: 320 , //circle
+        //       height: 320,
+        //       decoration: const BoxDecoration(
+        //         shape: BoxShape.circle,
+        //         color: (Colors.white),
+        //         //borderRadius: BorderRadius.all(Radius.circular(20))
+        //       ),
+        //       child: Center(
+        //         child: Image.asset(
+        //           'assets/openScreen.png',
+        //           width: 250, //picture
+        //           height: 300,
+        //           //fit: BoxFit.contain,
+        //         ),
+        //       ),
+        //     ),
+        //     const Padding(padding: EdgeInsets.all(28)),
+        //     //child: StayledText('welcome to Liav\'s app '),
+        //     //const SizedBox(height: 20),
+        //     Text('האפליקציה שתעשה לכם \n סדר יום\n בצ\'יק צ\'ק',
+        //         style: TextStyle(
+        //             color: kColorScheme.primary,
+        //             fontSize: 30,
+        //             fontWeight: FontWeight.bold),
+        //         textAlign: TextAlign.center),
+        //     // Row(
+        //     //   mainAxisAlignment: MainAxisAlignment.center,
+        //     //   crossAxisAlignment: CrossAxisAlignment.,
+        //     //   textDirection: TextDirection.rtl,
+        //     //   children: [
+        //     //     StyledText(
+        //     //         outText: 'האפליקציה שתעשה לכם \n סדר יום\n בצ\'יק צ\'ק',
+        //     //         size: 25,
+        //     //         color: kColorScheme.primary),
+        //     //   ],
+        //     // ),
+        //     const SizedBox(height: 20),
+        //     CircularProgressIndicator(
+        //       color: kColorScheme.primary,
+        //     ) // גלגל המתנה בתחתית העמוד
+        //   ],
+        // )
       ),
     );
   }
