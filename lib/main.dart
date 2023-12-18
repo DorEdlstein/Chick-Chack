@@ -1,4 +1,3 @@
-
 import 'package:chick_chack_beta/screens/application_main.dart';
 import 'package:chick_chack_beta/screens/first_time.dart';
 // import 'package:chick_chack_beta/screens/missions/missions.dart';
@@ -10,6 +9,8 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 var kColorScheme = ColorScheme.fromSeed(
   seedColor: Colors.cyan,
@@ -25,6 +26,7 @@ final theme = ThemeData(
   appBarTheme: const AppBarTheme(color: Color.fromARGB(255, 15, 121, 213)),
 );
 
+final FlutterLocalNotificationsPlugin FLNP = FlutterLocalNotificationsPlugin();
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -87,8 +89,7 @@ void main() async {
             ),
       ),
       //themeMode: ThemeMode.system, //defualt
-      home:
-      StreamBuilder( 
+      home: StreamBuilder(
 // חשוב! הבנאי הזה מפעיל את האפליקציה בסך הראשי שיש טוקן וכשאין אז מסך התחברות
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: ((context, snapshot) {

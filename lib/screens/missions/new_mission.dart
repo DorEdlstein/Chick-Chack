@@ -4,13 +4,19 @@ import 'package:chick_chack_beta/main.dart';
 import 'package:chick_chack_beta/models/category.dart';
 import 'package:chick_chack_beta/models/mission.dart';
 import 'package:chick_chack_beta/screens/application_main.dart';
+import 'package:chick_chack_beta/service/noti.dart';
 import 'package:chick_chack_beta/styles/styled_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
- // design of IOS APPLE
+
+import 'package:timezone/timezone.dart' as tz;
+import 'package:timezone/data/latest_all.dart' as tzData;
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
+// design of IOS APPLE
 
 // ignore: must_be_immutable
 class NewMission extends StatefulWidget {
@@ -62,6 +68,8 @@ class _NewMissionState extends State<NewMission> {
 
   @override
   void initState() {
+    Noti.initialize(FLNP);
+    tzData.initializeTimeZones();
     if (widget.gotTitle != '') {
       _titleController.text = widget.gotTitle;
     }
@@ -182,27 +190,32 @@ class _NewMissionState extends State<NewMission> {
       return;
     }
     Navigator.of(context).pop();
-    //   Mission(
-    //   title: _titleController.text,
-    //   date: DateTime(
-    //     _selectedDate!.year,
-    //     _selectedDate!.month,
-    //     _selectedDate!.day,
-    //   ),
-    //   time: TimeOfDay(
-    //     hour: _selectedTime!.hour,
-    //     minute: _selectedTime!.minute,
-    //   ),
-    //   category: _selectedCategory,
-    //   comment: _commentController.text,
-    // )); //סוגר את החלונית לאחר ביצוע כל הפעולות
+    setNoti();
+  }
+
+  void setNoti() async {
+    // print(
+    //     "${list[list.length - 1].date.toString().substring(0, 10)} ${list[list.length - 1].time.toString().substring(10, 15)}:00");
+    await Noti.showScheduleNotification(
+      title: _titleController.text,
+      body: _commentController.text,
+      fln: FLNP,
+      time: tz.TZDateTime.parse(tz.local,
+          "${_selectedDate.toString().substring(0, 10)} ${_selectedTime.toString().substring(10, 15)}:00"),
+    );
+    // print(
+    //     "${_selectedDate.toString().substring(0, 10)} + ${_selectedTime.toString().substring(10, 15)}:00");
+    print('noti seted');
   }
 
   @override
   Widget build(BuildContext context) {
     final keyboardSpace = MediaQuery.of(context).viewInsets.bottom;
     final bool isGotTitle;
-    widget.gotTitle == '' ? isGotTitle = false : isGotTitle = true;// this check if we use the GOTTITLE CONSTRACTOR!!!!!
+    widget.gotTitle == ''
+        ? isGotTitle = false
+        : isGotTitle =
+            true; // this check if we use the GOTTITLE CONSTRACTOR!!!!!
     return GestureDetector(
       // להתעלם מהמקלדת אם פתוחה בעת לחיצה
       onTap: () {},

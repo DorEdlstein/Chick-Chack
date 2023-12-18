@@ -18,7 +18,7 @@ import 'package:chick_chack_beta/screens/expenses/expenses.dart';
 import 'package:chick_chack_beta/widgets/small_mission_card.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 
 final userConnected =
@@ -42,8 +42,6 @@ class _MainAppState extends State<MainApp> {
   List<Mission> allMissions = [];
   List<Mission> todayMissionsSorted = [];
 
-  get http => null;
-
   @override
   void initState() {
     setState(() {
@@ -57,6 +55,7 @@ class _MainAppState extends State<MainApp> {
   }
 
   void _loadMission() async {
+    // print('gogo ${userConnected.uid}');
     final url = Uri.https('chick-chack-6fdf7-default-rtdb.firebaseio.com',
         'mission-list/${userConnected.uid}.json');
     try {
@@ -72,6 +71,13 @@ class _MainAppState extends State<MainApp> {
       final Map<String, dynamic> listData = json.decode(response.body);
       final List<Mission> loadedItems = [];
       for (final item in listData.entries) {
+        // print('title: ${item.value['title']},');
+        // print('title: ${item.value['comment']},');
+        // print('title: ${item.value['date-year']+ item.value['date-month']+
+        //         item.value['date-day']},');
+        // print('title: ${item.value['time-hour']},');
+        // print('title: ${item.value['time-minute']},');
+
         loadedItems.add(
           Mission(
             title: item.value['title'],
@@ -86,6 +92,7 @@ class _MainAppState extends State<MainApp> {
           ),
         );
       }
+      // print(loadedItems.length);
       setState(() {
         allMissions = loadedItems;
         print('items was added succesfuly to  mission list from firbase!');
