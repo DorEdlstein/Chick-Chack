@@ -11,6 +11,7 @@ import 'package:chick_chack_beta/styles/styled_text.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:chick_chack_beta/models/mission.dart';
+import 'package:chick_chack_beta/screens/missions/new_mission.dart';
 
 import '../../widgets/missions_list.dart';
 
@@ -194,6 +195,22 @@ class _MissionsState extends State<Missions> {
     // }
   }
 
+  void _presentDatePicker() async {
+    final now = DateTime.now();
+    final firstDate = DateTime(now.year - 10, now.month, now.day);
+    final lastDate = DateTime(now.year + 10, now.month, now.day);
+    final pickedDate = await showDatePicker(
+        context: context,
+        initialDate: now,
+        firstDate: firstDate,
+        lastDate: lastDate);
+    if (pickedDate != null) {
+      setState(() {
+        widget.date = pickedDate;
+      });
+    }
+  }
+
   void addMission(Mission mission) {
     // לא בשרת
     //מקבלת "משימה" ומוסיפה אותה לרשימת המשימות
@@ -267,6 +284,7 @@ class _MissionsState extends State<Missions> {
     }
     return todayMissions;
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -354,7 +372,9 @@ class _MissionsState extends State<Missions> {
                                 });
                               },
                               icon: const Icon(Icons.chevron_right)),
-                        IconButton(onPressed: (){}, icon: const Icon(Icons.calendar_month))
+                          IconButton(
+                              onPressed: _presentDatePicker,
+                              icon: const Icon(Icons.calendar_month))
                         ],
                       ),
                       // Chart(missions: loadedMissions),

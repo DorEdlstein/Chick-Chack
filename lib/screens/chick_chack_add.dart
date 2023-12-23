@@ -46,7 +46,7 @@ State<CCAddMission> createState() => _CCAddMissionState();
 }
 
 class _CCAddMissionState extends State<CCAddMission> {
-void _openNewMissionOverlay(BuildContext context) {
+void _openNewMissionOverlay(BuildContext context, String gotTitle) {
 showModalBottomSheet(
 //פותח את חלונית הוספת המשימה
 //useSafeArea: true,F
@@ -54,7 +54,7 @@ isScrollControlled: true, //גורם לחלונית להיות על מסך מל�
 context: context,
 builder: (ctx) => NewMission.byDefualtTitle(
 onAddMission: (mission) {},
-title: missionsTitle[DefaultMissions.drinkWater]!,
+title: gotTitle,
 ),
 );
 }
@@ -79,14 +79,14 @@ CCAddCircle(
 subject: missionsTitle[DefaultMissions.drinkWater]!,
 icon: Icon(missionsIcons[DefaultMissions.drinkWater]!),
 onPressed: () {
-_openNewMissionOverlay(context);
+_openNewMissionOverlay(context,missionsTitle[DefaultMissions.drinkWater]! );
 },
 ),
 CCAddCircle(
 subject: missionsTitle[DefaultMissions.takePill]!,
 icon: Icon(missionsIcons[DefaultMissions.takePill]!),
 onPressed: () {
-_openNewMissionOverlay(context);
+_openNewMissionOverlay(context, missionsTitle[DefaultMissions.takePill]!);
 },
 ),
 ],
@@ -98,14 +98,14 @@ CCAddCircle(
 subject: missionsTitle[DefaultMissions.shoppingList]!,
 icon: Icon(missionsIcons[DefaultMissions.shoppingList]!),
 onPressed: () {
-_openNewMissionOverlay(context);
+_openNewMissionOverlay(context, missionsTitle[DefaultMissions.shoppingList]!);
 },
 ),
 CCAddCircle(
 subject: missionsTitle[DefaultMissions.trainig]!,
 icon: Icon(missionsIcons[DefaultMissions.trainig]!),
 onPressed: () {
-_openNewMissionOverlay(context);
+_openNewMissionOverlay(context, missionsTitle[DefaultMissions.trainig]!);
 },
 ),
 ],
@@ -117,14 +117,14 @@ CCAddCircle(
 subject: missionsTitle[DefaultMissions.turnOffAC]!,
 icon: Icon(missionsIcons[DefaultMissions.turnOffAC]!),
 onPressed: () {
-_openNewMissionOverlay(context);
+_openNewMissionOverlay(context, missionsTitle[DefaultMissions.turnOffAC]!);
 },
 ),
 CCAddCircle(
 subject: missionsTitle[DefaultMissions.shower]!,
 icon: Icon(missionsIcons[DefaultMissions.shower]!),
 onPressed: () {
-_openNewMissionOverlay(context);
+_openNewMissionOverlay(context,missionsTitle[DefaultMissions.shower]! );
 },
 ),
 ],
@@ -136,14 +136,14 @@ CCAddCircle(
 subject: missionsTitle[DefaultMissions.waterPlants]!,
 icon: Icon(missionsIcons[DefaultMissions.waterPlants]!),
 onPressed: () {
-_openNewMissionOverlay(context);
+_openNewMissionOverlay(context, missionsTitle[DefaultMissions.waterPlants]!);
 },
 ),
 CCAddCircle(
 subject: missionsTitle[DefaultMissions.washDishes]!,
 icon: Icon(missionsIcons[DefaultMissions.washDishes]!),
 onPressed: () {
-_openNewMissionOverlay(context);
+_openNewMissionOverlay(context, missionsTitle[DefaultMissions.washDishes]!);
 },
 ),
 ],

@@ -90,7 +90,22 @@ class _PageCalendarState extends State<PageCalendar> {
     }
     return _missionsToday;
   }
-
+  
+  void _presentDatePicker() async {
+    final now = DateTime.now();
+    final firstDate = DateTime(now.year - 10, now.month, now.day);
+    final lastDate = DateTime(now.year + 10, now.month, now.day);
+    final pickedDate = await showDatePicker(
+        context: context,
+        initialDate: now,
+        firstDate: firstDate,
+        lastDate: lastDate);
+    if (pickedDate != null) {
+      setState(() {
+        today = pickedDate;
+      });
+    }
+  }
   void _onDaySelected(DateTime day, DateTime focusedDay) {
     setState(() {
       today = day;
@@ -152,8 +167,15 @@ class _PageCalendarState extends State<PageCalendar> {
     return SingleChildScrollView(
       child: Column(
         children: [
-          // StyledText.title(today.toString().split(" ")[0]),
-          StyledText.title(dateLine.toString()),
+          Row(
+                mainAxisAlignment: MainAxisAlignment.end, 
+                children: [
+                StyledText.title(dateLine.toString()),
+                const SizedBox(width: 20),
+                  IconButton(
+                      onPressed: _presentDatePicker,
+                      icon: const Icon(Icons.calendar_today)),
+                ],),
           TableCalendar(
             // calendarStyle: const CalendarStyle(
             //  selectedDecoration: BoxDecoration(color: Colors.black38, shape: BoxShape.circle),

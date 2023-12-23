@@ -27,6 +27,8 @@ final theme = ThemeData(
 );
 
 final FlutterLocalNotificationsPlugin FLNP = FlutterLocalNotificationsPlugin();
+
+final FlutterLocalNotificationsPlugin TestFLNP = FlutterLocalNotificationsPlugin();
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(

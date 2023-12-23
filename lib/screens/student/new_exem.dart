@@ -1,9 +1,13 @@
 import 'package:chick_chack_beta/main.dart';
 import 'package:chick_chack_beta/models/exem.dart';
 import 'package:chick_chack_beta/screens/application_main.dart';
+import 'package:chick_chack_beta/service/noti.dart';
 import 'package:chick_chack_beta/styles/styled_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+
+import 'package:timezone/timezone.dart' as tz;
+import 'package:timezone/data/latest_all.dart' as tzData;
 
 class NewExem extends StatefulWidget {
   const NewExem({super.key, required this.onAddExem});
@@ -26,6 +30,12 @@ class _NewExemState extends State<NewExem> {
   //   _selectedDate; // ------------check
   //   super.dispose();
   // }
+  @override
+  void initState() {
+    Noti.initialize(TestFLNP);
+    tzData.initializeTimeZones();
+    super.initState();
+  }
 
   void _presentDatePicker() async {
     final now = DateTime.now();
@@ -70,7 +80,7 @@ class _NewExemState extends State<NewExem> {
     if (isValid) {
       _formKey.currentState!.save();
       print('---details saved---');
-
+      setNoti();
       FocusScope.of(context).unfocus();
       //IF ends now ELSE
       widget.onAddExem(Exem(
@@ -95,8 +105,28 @@ class _NewExemState extends State<NewExem> {
       if (!mounted) {
         return;
       }
-      Navigator.of(context).pop(); //סוגר את החלונית לאחר ביצוע כל הפעולות
+      Navigator.of(context).pop(); //סוגר את החלונית לאחר ביצוע כל הפעולות וחוזר
+      
     }
+  }
+
+  void setNoti() async {
+    await Noti.showBigTextNotification(
+      fln: TestFLNP,
+      title: _titleController.toString(),
+      body:
+          "you have an exem tommorow! -> note: ${_commentController.toString()}",
+    );
+    // await Noti.showScheduleNotification(
+    //   title: _titleController,
+    //   body: _commentController,
+    //   fln: TFLNP,
+    //   time: tz.TZDateTime.parse(tz.local,
+    //       "${_selectedDate.toString().substring(0, 10)} ${_selectedTime.toString().substring(10, 15)}:00"),
+    // );
+    // print(
+    //     "${_selectedDate.toString().substring(0, 10)} + ${_selectedTime.toString().substring(10, 15)}:00");
+    print('noti of test seted');
   }
 
   @override
